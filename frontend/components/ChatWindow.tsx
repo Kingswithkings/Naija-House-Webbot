@@ -70,7 +70,7 @@ export default function ChatWindow() {
         ...m,
         {
           role: "assistant",
-          text: "Sorry — API error. Check backend is running on http://localhost:8000.",
+          text: "Sorry — API error. Please try again in a moment.",
         },
       ]);
     } finally {
@@ -262,7 +262,7 @@ export default function ChatWindow() {
           rel="noopener noreferrer"
           style={{ textDecoration: "underline", color: "#9ca3af" }}
         >
-        1st-kings.com
+          1st-kings.com
         </a>
       </div>
     </div>
