@@ -9,13 +9,18 @@ app = FastAPI(title="Conversational Ordering API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",  # local development
-        "https://global-food-webbot-cdaf.vercel.app",  # production frontend
+        "http://localhost:3000",
+        "https://global-food-webbot-cdaf.vercel.app",
+        "https://naija-house-webbotapp.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/health")
+def health():
+    return {"ok": True}
 
 app.include_router(products_router)
 app.include_router(chat_router)
