@@ -3,8 +3,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-DB_PATH = BASE_DIR / "store.db"
+DB_PATH = Path("/tmp/store.db")
 
 
 def _conn():
@@ -21,7 +20,7 @@ def init_db():
     CREATE TABLE IF NOT EXISTS messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         session_id TEXT NOT NULL,
-        role TEXT NOT NULL, -- 'user' | 'assistant'
+        role TEXT NOT NULL,
         text TEXT NOT NULL,
         created_at TEXT NOT NULL
     );
@@ -31,8 +30,8 @@ def init_db():
     CREATE TABLE IF NOT EXISTS orders (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         session_id TEXT NOT NULL,
-        items TEXT NOT NULL,          -- JSON list
-        status TEXT NOT NULL,         -- draft|checkout|confirmed|cancelled
+        items TEXT NOT NULL,
+        status TEXT NOT NULL,
         pickup_time TEXT,
         customer_name TEXT,
         customer_phone TEXT,
@@ -46,7 +45,7 @@ def init_db():
     CREATE TABLE IF NOT EXISTS user_state (
         session_id TEXT PRIMARY KEY,
         state TEXT NOT NULL,
-        context TEXT NOT NULL,  -- JSON
+        context TEXT NOT NULL,
         updated_at TEXT NOT NULL
     );
     """)
@@ -56,7 +55,7 @@ def init_db():
 
 
 def now_iso():
-    return datetime.utcnow().isoformat(timespec="seconds")
+    return datetime.now().isoformat(timespec="seconds")
 
 
 def log_message(session_id: str, role: str, text: str):
@@ -73,10 +72,15 @@ def log_message(session_id: str, role: str, text: str):
 def get_state(session_id: str) -> tuple[str, dict]:
     con = _conn()
     cur = con.cursor()
-    row = cur.execute("SELECT state, context FROM user_state WHERE session_id=?", (session_id,)).fetchone()
+    row = cur.execute(
+        "SELECT state, context FROM user_state WHERE session_id=?",
+        (session_id,)
+    ).fetchone()
     con.close()
+
     if not row:
         return "browsing", {}
+
     return row["state"], json.loads(row["context"])
 
 
@@ -123,6 +127,7 @@ def get_or_create_draft_order(session_id: str) -> dict:
 def update_order(order_id: int, **fields):
     if not fields:
         return
+
     con = _conn()
     cur = con.cursor()
 
