@@ -16,10 +16,11 @@ export type ChatResponse = {
   order_id: number;
 };
 
-const API_BASE =
+const API_BASE = (
   process.env.NEXT_PUBLIC_API_BASE_URL ??
   process.env.NEXT_PUBLIC_API_BASE ??
-  "http://127.0.0.1:8000";
+  "http://127.0.0.1:8000"
+).replace(/\/$/, "");
 
 export async function sendChat(
   sessionId: string,
@@ -32,9 +33,13 @@ export async function sendChat(
     cache: "no-store",
   });
 
-  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  const raw = await res.text();
 
-  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(`API error ${res.status}: ${raw}`);
+  }
+
+  const data = JSON.parse(raw);
 
   return {
     reply: data?.reply ?? "",

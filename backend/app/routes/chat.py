@@ -24,11 +24,7 @@ def chat(req: ChatRequest):
         print(f"CATALOG EXISTS: {CATALOG_PATH.exists()}")
 
         log_message(req.session_id, "user", req.message)
-
         result = handle_chat(req.session_id, req.message, CATALOG)
-
-        print("CHAT RESULT:", result)
-
         log_message(req.session_id, "assistant", result.get("reply", ""))
 
         return result
@@ -36,4 +32,4 @@ def chat(req: ChatRequest):
     except Exception as e:
         print("CHAT ERROR:", repr(e))
         traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"CHAT ERROR: {repr(e)}")
